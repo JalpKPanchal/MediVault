@@ -1,6 +1,7 @@
 package com.grownited.controller;
 
 import com.grownited.entity.UserEntity;
+import com.grownited.entity.UserEntity.Role;
 import com.grownited.entity.UserEntity.Status;
 import com.grownited.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class UserController {
     public String signup(@ModelAttribute UserEntity user, Model model) {
         user.setPassword(passwordEncoder.encode(user.getPassword())); // Encode password
         user.setStatus(Status.ACTIVE); // Default status
+        user.setRole(Role.PATIENT);
         userRepository.save(user);
         model.addAttribute("message", "Signup successful! Please login.");
         return "Login";

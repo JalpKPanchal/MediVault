@@ -41,15 +41,6 @@
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Role</label>
-                    <select class="form-select" name="role">
-                        <option value="ADMIN">Admin</option>
-                        <option value="PATIENT">Patient</option>
-                        <option value="DOCTOR">Doctor</option>
-                        <option value="FDE">Front Desk Executive</option>
-                    </select>
-                </div>
                 <button type="submit" class="btn btn-primary w-100">Signup</button>
             </form>
             <p class="text-center mt-3">
