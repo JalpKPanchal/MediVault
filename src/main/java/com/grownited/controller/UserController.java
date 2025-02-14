@@ -1,11 +1,7 @@
 package com.grownited.controller;
 
 import com.grownited.entity.UserEntity;
-import com.grownited.entity.UserEntity.Role;
-import com.grownited.entity.UserEntity.Status;
-import com.grownited.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.grownited.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +12,11 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserService userService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder; // Inject PasswordEncoder
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/signup")
     public String signupForm(Model model) {
@@ -30,10 +26,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public String signup(@ModelAttribute UserEntity user, Model model) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encode password
-        user.setStatus(Status.ACTIVE); // Default status
-        user.setRole(Role.PATIENT);
-        userRepository.save(user);
+        userService.signup(user);
         model.addAttribute("message", "Signup successful! Please login.");
         return "Login";
     }
@@ -45,23 +38,15 @@ public class UserController {
 
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String password, Model model) {
-        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
+        Optional<UserEntity> optionalUser = userService.login(email, password);
 
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
-
-            if (user.getStatus() == Status.DISABLED) {
-                model.addAttribute("error", "Your account is disabled!");
-                return "Login";
-            }
-
-            if (passwordEncoder.matches(password, user.getPassword())) { // Compare hashed password
-                model.addAttribute("user", user);
-                return "Dashboard"; // Redirect to dashboard (create this page)
-            }
+            model.addAttribute("user", user);
+            return "Dashboard"; // Create Dashboard.jsp as a landing page
+        } else {
+            model.addAttribute("error", "Invalid email, password, or account disabled!");
+            return "Login";
         }
-
-        model.addAttribute("error", "Invalid email or password");
-        return "Login";
     }
 }
