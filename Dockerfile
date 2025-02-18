@@ -1,22 +1,14 @@
-# Use an official Maven image to build the project
-FROM maven:3.8.6-openjdk-17 AS build
+ # Stage 1: Build the application
+FROM maven:3.9.9-amazoncorretto-21-alpine AS builder
 WORKDIR /app
-
-# Copy the project source
-COPY . .
-
-# Build the application
+COPY pom.xml .
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
-WORKDIR /app
+# Stage 2: Create a lightweight runtime image
+FROM alpine/java:21-jdk
+WORKDIR /usr/local/tomcat/webapps/
 
-# Copy only the generated JAR file from the build stage
-COPY --from=build /app/target/*.jar app.jar
-
-# Expose the application port
-EXPOSE 9999
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --from=builder /app/target/MediVault-0.0.1-SNAPSHOT.war app.war
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.war"]
