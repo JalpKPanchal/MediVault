@@ -1,44 +1,37 @@
 package com.grownited.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "DoctorProfile")
+@Table(name = "doctor_profile") // Ensure matches database
 public class DoctorProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "docProfileId")
+    @Column(name = "doc_profile_id") // Matches database column name
     private Integer docProfileId;
 
     @ManyToOne
-    @JoinColumn(name = "userId", referencedColumnName = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(name = "qualification", nullable = false)
+    @Column(nullable = false)
     private String qualification;
 
-    @Column(name = "specialization", nullable = false)
+    @Column(nullable = false)
     private String specialization;
 
-    @Column(name = "experience", nullable = false)
+    @Column(nullable = false)
     private Integer experience;
 
-    @Column(name = "profile_pic", nullable = false)
+    @Column(name = "profile_pic", nullable = false) 
     private String profilePic;
 
-    @Column(name = "about")
+    @Column
     private String about;
 
-    @Column(name = "registrationno")
+    @Column
     private String registrationNo;
 }

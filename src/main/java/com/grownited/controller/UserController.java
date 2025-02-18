@@ -2,6 +2,7 @@ package com.grownited.controller;
 
 import com.grownited.entity.UserEntity;
 import com.grownited.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -37,16 +38,39 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email, @RequestParam String password, Model model) {
+    public String login(
+            @RequestParam String email, 
+            @RequestParam String password, 
+            Model model, 
+            HttpSession session
+    ) {
         Optional<UserEntity> optionalUser = userService.login(email, password);
 
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
-            model.addAttribute("user", user);
-            return "Dashboard"; // Create Dashboard.jsp as a landing page
+            session.setAttribute("loggedInUser", user); // Store user in session
+            return "redirect:/dashboard"; // Redirect to Dashboard
         } else {
             model.addAttribute("error", "Invalid email, password, or account disabled!");
             return "Login";
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // Clear session
+        return "redirect:/user/login?logout=true"; // Redirect to login page
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
+        UserEntity user = (UserEntity) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/user/login"; // Redirect if not logged in
+        }
+
+        model.addAttribute("user", user);
+        return "Dashboard"; // Show Dashboard.jsp
     }
 }

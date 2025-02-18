@@ -1,18 +1,18 @@
 package com.grownited.controller;
 
 import com.grownited.entity.DoctorProfileEntity;
+import com.grownited.entity.UserEntity;
+import com.grownited.service.CloudinaryService;
 import com.grownited.service.DoctorProfileService;
+import com.grownited.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,68 +20,65 @@ import java.util.Optional;
 @RequestMapping("/doctorProfile")
 public class DoctorProfileController {
 
-    private static String UPLOAD_DIR = "uploads/";
-
     @Autowired
     private DoctorProfileService doctorProfileService;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @Autowired 
+    private UserService userService;
 
     // Show all doctor profiles
     @GetMapping("/list")
     public String listDoctorProfiles(Model model) {
         List<DoctorProfileEntity> doctorProfiles = doctorProfileService.getAllDoctorProfiles();
         model.addAttribute("doctorProfiles", doctorProfiles);
-        return "List";
+        return "ListDoctorProfiles"; // ✅ JSP file for displaying doctor profiles
     }
 
-    // Show form to add a new doctor profile
-    @GetMapping("/new")
-    public String newDoctorProfileForm(Model model) {
-        model.addAttribute("doctorProfileEntity", new DoctorProfileEntity());
-        return "Form";
-    }
+    // Show form to add/edit a doctor profile
+    @GetMapping("/form")
+    public String doctorProfileForm(Model model, HttpSession session) {
+        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 
-    // Create or update doctor profile
-    @PostMapping("/save")
-    public String saveDoctorProfile(@ModelAttribute DoctorProfileEntity doctorProfileEntity, 
-                                    @RequestParam("profilePic") MultipartFile profilePic) throws IOException {
-        
-        // Handle file upload
-        if (!profilePic.isEmpty()) {
-            // Ensure the 'uploads' directory exists
-            File uploadDir = new File(UPLOAD_DIR);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs(); // Create directory if it does not exist
-            }
+        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.DOCTOR) {
+            return "redirect:/user/login?error=Unauthorized"; // Redirect if not logged in or not a doctor
+        }
 
-            // Generate unique filename
-            String filename = System.currentTimeMillis() + "_" + profilePic.getOriginalFilename();
+        Optional<DoctorProfileEntity> existingProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
 
-            // Path to save the file
-            Path path = Paths.get(UPLOAD_DIR + filename);
-            Files.write(path, profilePic.getBytes());  // Save the file
-            
-            // Store the filename (not the file object) in the entity
-            doctorProfileEntity.setProfilePic(filename);
+        if (existingProfile.isPresent()) {
+            model.addAttribute("doctorProfileEntity", existingProfile.get());
         } else {
-            // If no file was uploaded, handle it (set a default value or null)
-            doctorProfileEntity.setProfilePic(null);
+            model.addAttribute("doctorProfileEntity", new DoctorProfileEntity());
         }
 
-        // Save or update the doctor profile
-        doctorProfileService.saveDoctorProfile(doctorProfileEntity);
-        return "redirect:/doctorProfile/list";
+        return "DoctorProfileForm"; // ✅ JSP form
     }
 
+    // Save doctor profile
+    @PostMapping("/save")
+    public String saveDoctorProfile(@ModelAttribute DoctorProfileEntity doctorProfile,
+                                    @RequestParam("profileImage") MultipartFile profileImage,
+                                    HttpSession session) throws IOException {
 
-    // Show form to update doctor profile
-    @GetMapping("/edit/{docProfileId}")
-    public String editDoctorProfile(@PathVariable Integer docProfileId, Model model) {
-        Optional<DoctorProfileEntity> doctorProfile = doctorProfileService.getDoctorProfileById(docProfileId);
-        if (doctorProfile.isPresent()) {
-            model.addAttribute("doctorProfileEntity", doctorProfile.get());
-            return "Form";
+        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
+
+        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.DOCTOR) {
+            return "redirect:/user/login?error=Unauthorized";
         }
-        return "redirect:/doctorProfile/list";
+
+        doctorProfile.setUser(loggedInUser);
+
+        // Handle file upload
+        if (!profileImage.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadFile(profileImage);
+            doctorProfile.setProfilePic(imageUrl);
+        }
+
+        doctorProfileService.saveDoctorProfile(doctorProfile);
+        return "redirect:/doctorProfile/list"; // Redirect to profile list page
     }
 
     // Delete doctor profile
@@ -89,5 +86,18 @@ public class DoctorProfileController {
     public String deleteDoctorProfile(@PathVariable Integer docProfileId) {
         doctorProfileService.deleteDoctorProfile(docProfileId);
         return "redirect:/doctorProfile/list";
+    }
+
+    // View doctor profile details
+    @GetMapping("/view/{docProfileId}")
+    public String viewDoctorProfile(@PathVariable Integer docProfileId, Model model) {
+        Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileById(docProfileId);
+
+        if (doctorProfileOpt.isPresent()) {
+            model.addAttribute("doctorProfile", doctorProfileOpt.get());
+            return "ViewDoctorProfile"; // ✅ JSP file to display doctor details
+        } else {
+            return "redirect:/doctorProfile/list?error=ProfileNotFound"; // Redirect if profile not found
+        }
     }
 }

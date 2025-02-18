@@ -53,7 +53,7 @@
 
         <div class="row">
             <c:choose>
-                <!-- ADMIN Dashboard -->
+                <%-- ADMIN Dashboard --%>
                 <c:when test="${user.roleAsString eq 'ADMIN'}">
                     <div class="col-md-4">
                         <div class="card dashboard-card text-center p-3">
@@ -78,7 +78,7 @@
                     </div>
                 </c:when>
 
-                <!-- DOCTOR Dashboard -->
+                <%-- DOCTOR Dashboard --%>
                 <c:when test="${user.roleAsString eq 'DOCTOR'}">
                     <div class="col-md-4">
                         <div class="card dashboard-card text-center p-3">
@@ -103,7 +103,7 @@
                     </div>
                 </c:when>
 
-                <!-- PATIENT Dashboard -->
+                <%-- PATIENT Dashboard --%>
                 <c:when test="${user.roleAsString eq 'PATIENT'}">
                     <div class="col-md-6">
                         <div class="card dashboard-card text-center p-3">
@@ -121,7 +121,7 @@
                     </div>
                 </c:when>
 
-                <!-- FRONT DESK EXECUTIVE Dashboard -->
+                <%-- FRONT DESK EXECUTIVE Dashboard --%>
                 <c:when test="${user.roleAsString eq 'FDE'}">
                     <div class="col-md-6">
                         <div class="card dashboard-card text-center p-3">
@@ -139,7 +139,7 @@
                     </div>
                 </c:when>
 
-                <!-- Default case -->
+                <%-- Default case --%>
                 <c:otherwise>
                     <div class="col-12">
                         <div class="alert alert-danger text-center">

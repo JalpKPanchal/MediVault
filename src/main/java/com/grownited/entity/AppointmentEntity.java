@@ -2,12 +2,13 @@ package com.grownited.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "Appointment")
+@Table(name = "appointment")
 public class AppointmentEntity {
 
     @Id
@@ -17,8 +18,9 @@ public class AppointmentEntity {
     @Column(nullable = false)
     private UUID patientId;
 
-    @Column(nullable = false)
-    private UUID doctorId;
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", referencedColumnName = "doc_profile_id") // Matches DoctorProfileEntity
+    private DoctorProfileEntity doctor;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -35,6 +37,7 @@ public class AppointmentEntity {
 
     private String complain;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date appointmentDate;
 
@@ -45,5 +48,4 @@ public class AppointmentEntity {
     public enum AppointmentStatus {
         CANCELLED, BOOKED, REJECTED, RESCHEDULED, PENDING
     }
-
 }
