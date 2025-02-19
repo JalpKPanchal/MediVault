@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class StateService {
@@ -18,7 +19,7 @@ public class StateService {
         return stateRepository.findAll();
     }
 
-    public Optional<StateEntity> getStateById(Integer stateId) {
+    public Optional<StateEntity> getStateById(UUID stateId) {
         return stateRepository.findById(stateId);
     }
 
@@ -26,7 +27,7 @@ public class StateService {
         stateRepository.save(stateEntity);
     }
 
-    public void deleteState(Integer stateId) {
+    public void deleteState(UUID stateId) {
         stateRepository.deleteById(stateId);
     }
 }

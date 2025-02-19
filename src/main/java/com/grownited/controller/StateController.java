@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/state")
@@ -41,7 +42,7 @@ public class StateController {
 
     // Show form to update a state
     @GetMapping("/edit/{stateId}")
-    public String editState(@PathVariable Integer stateId, Model model) {
+    public String editState(@PathVariable UUID stateId, Model model) {
         Optional<StateEntity> state = stateService.getStateById(stateId);
         if (state.isPresent()) {
             model.addAttribute("stateEntity", state.get());
@@ -52,7 +53,7 @@ public class StateController {
 
     // Delete state
     @GetMapping("/delete/{stateId}")
-    public String deleteState(@PathVariable Integer stateId) {
+    public String deleteState(@PathVariable UUID stateId) {
         stateService.deleteState(stateId);
         return "redirect:/state/list";
     }
