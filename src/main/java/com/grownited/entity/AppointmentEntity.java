@@ -2,50 +2,46 @@ package com.grownited.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-@Entity
 @Data
-@Table(name = "appointment")
+@Entity
+@Table(name = "appointments")
 public class AppointmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID appointmentId;
 
-    @Column(nullable = false)
-    private UUID patientId;
-
     @ManyToOne
-    @JoinColumn(name = "doctor_id", referencedColumnName = "doc_profile_id") // Matches DoctorProfileEntity
+    @JoinColumn(name = "doctor_id")
     private DoctorProfileEntity doctor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private AppointmentStatus status;
+    @Column(name = "patient_id")
+    private UUID patientId;
 
-    @Temporal(TemporalType.DATE)
-    private Date appCreateDate;
+    private LocalDate appointmentDate;
+    private LocalTime appointmentTime;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
 
     private String comment;
 
-    private UUID clinicId;
-
-    private String reference;
-
-    private String complain;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @Temporal(TemporalType.DATE)
-    private Date appointmentDate;
-
-    private String appointmentTime;
-
-    private String cancelReason;
-
     public enum AppointmentStatus {
-        CANCELLED, BOOKED, REJECTED, RESCHEDULED, PENDING
+        PENDING, BOOKED, CANCELLED, REJECTED, RESCHEDULED
+    }
+
+    // Formatted getters for JSP
+    public String getFormattedAppointmentDate() {
+        return appointmentDate != null ? appointmentDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : "";
+    }
+
+    public String getFormattedAppointmentTime() {
+        return appointmentTime != null ? appointmentTime.format(DateTimeFormatter.ofPattern("HH:mm")) : "";
     }
 }

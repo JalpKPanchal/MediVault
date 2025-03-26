@@ -15,32 +15,29 @@ public class DoctorProfileService {
     @Autowired
     private DoctorProfileRepository doctorProfileRepository;
 
-    // ✅ Save or update doctor profile
-    public DoctorProfileEntity saveDoctorProfile(DoctorProfileEntity doctorProfile) {
-        return doctorProfileRepository.save(doctorProfile);
-    }
-
-    // ✅ Fetch all doctor profiles
     public List<DoctorProfileEntity> getAllDoctorProfiles() {
         return doctorProfileRepository.findAll();
     }
 
-    // ✅ Fetch doctor profile by ID
-    public Optional<DoctorProfileEntity> getDoctorProfileById(Integer docProfileId) {
-        return doctorProfileRepository.findById(docProfileId);
-    }
-
-    // ✅ Fetch doctor profile by user ID
-    public Optional<DoctorProfileEntity> getDoctorProfileByUserId(UUID userId) {
-        return doctorProfileRepository.findByUser_UserId(userId);
-    }
-
-    // ✅ Delete doctor profile by ID
-    public void deleteDoctorProfile(Integer docProfileId) {
-        doctorProfileRepository.deleteById(docProfileId);
-    }
- // ✅ Fetch all doctors
     public List<DoctorProfileEntity> getAllDoctors() {
         return doctorProfileRepository.findAll();
+    }
+
+    public Optional<DoctorProfileEntity> getDoctorProfileById(Integer id) {
+        return doctorProfileRepository.findById(id);
+    }
+
+    public void saveDoctorProfile(DoctorProfileEntity doctorProfile) {
+        doctorProfileRepository.save(doctorProfile);
+    }
+
+    public void deleteDoctorProfile(Integer id) {
+        doctorProfileRepository.deleteById(id);
+    }
+
+    // Updated method to return DoctorProfileEntity directly
+    public DoctorProfileEntity getDoctorProfileByUserId(UUID userId) {
+        Optional<DoctorProfileEntity> doctorProfile = doctorProfileRepository.findByUser_UserId(userId);
+        return doctorProfile.orElse(null); // Return null if not found
     }
 }

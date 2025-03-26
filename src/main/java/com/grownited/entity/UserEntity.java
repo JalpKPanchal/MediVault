@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -37,6 +38,9 @@ public class UserEntity {
 
     private int bornYear;
 
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
+    private List<PatientMedicalHistoryEntity> medicalHistory;
+
     public enum Role {
         ADMIN, PATIENT, DOCTOR, FDE
     }
@@ -45,7 +49,6 @@ public class UserEntity {
         ACTIVE, DISABLED
     }
 
-    // New method to return role as String for JSP
     public String getRoleAsString() {
         return role.name();
     }

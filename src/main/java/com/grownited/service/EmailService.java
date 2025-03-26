@@ -1,5 +1,6 @@
 package com.grownited.service;
 
+import com.grownited.entity.AppointmentEntity;
 import com.grownited.entity.OtpEntity;
 import com.grownited.repository.OtpRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,27 +22,23 @@ public class EmailService {
     private OtpRepository otpRepository;
 
     private String generateOTP() {
-        return String.valueOf(100000 + new Random().nextInt(900000)); // Generate 6-digit OTP
+        return String.valueOf(100000 + new Random().nextInt(900000));
     }
 
     public String sendOtpEmail(String email) {
         String otp = generateOTP();
-
         OtpEntity otpEntity = new OtpEntity();
         otpEntity.setEmail(email);
         otpEntity.setOtp(otp);
         otpEntity.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-
         otpRepository.save(otpEntity);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("MediVault OTP for Password Reset");
         message.setText("Your OTP for password reset is: " + otp + ". It is valid for 5 minutes.");
-
         mailSender.send(message);
-        
-        return otp; // Ensure OTP is returned
+        return otp;
     }
 
     public boolean validateOtp(String email, String otp) {
@@ -49,10 +46,34 @@ public class EmailService {
         if (optionalOtp.isPresent()) {
             OtpEntity savedOtp = optionalOtp.get();
             if (savedOtp.getOtp().equals(otp) && LocalDateTime.now().isBefore(savedOtp.getExpiryTime())) {
-                otpRepository.delete(savedOtp); // OTP should be one-time use
+                otpRepository.delete(savedOtp);
                 return true;
             }
         }
         return false;
+    }
+
+    public void sendAppointmentConfirmation(AppointmentEntity appointment) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(appointment.getDoctor().getUser().getEmail());
+        message.setSubject("MediVault Appointment Confirmation");
+        message.setText("A new appointment has been booked:\n" +
+                "Patient: " + appointment.getPatientId() + "\n" +
+                "Date: " + appointment.getAppointmentDate() + "\n" +
+                "Time: " + appointment.getAppointmentTime() + "\n" +
+                "Status: " + appointment.getStatus());
+        mailSender.send(message);
+    }
+
+    public void sendAppointmentStatusUpdate(AppointmentEntity appointment) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(appointment.getDoctor().getUser().getEmail());
+        message.setSubject("MediVault Appointment Status Update");
+        message.setText("Appointment status updated:\n" +
+                "Patient: " + appointment.getPatientId() + "\n" +
+                "Date: " + appointment.getAppointmentDate() + "\n" +
+                "Time: " + appointment.getAppointmentTime() + "\n" +
+                "New Status: " + appointment.getStatus());
+        mailSender.send(message);
     }
 }

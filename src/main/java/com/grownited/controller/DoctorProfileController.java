@@ -29,35 +29,34 @@ public class DoctorProfileController {
     @Autowired 
     private UserService userService;
 
-    // Show all doctor profiles
     @GetMapping("/list")
     public String listDoctorProfiles(Model model) {
         List<DoctorProfileEntity> doctorProfiles = doctorProfileService.getAllDoctorProfiles();
         model.addAttribute("doctorProfiles", doctorProfiles);
-        return "ListDoctorProfiles"; // ✅ JSP file for displaying doctor profiles
+        return "ListDoctorProfiles";
     }
 
-    // Show form to add/edit a doctor profile
     @GetMapping("/form")
     public String doctorProfileForm(Model model, HttpSession session) {
         UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 
         if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.DOCTOR) {
-            return "redirect:/user/login?error=Unauthorized"; // Redirect if not logged in or not a doctor
+            return "redirect:/user/login?error=Unauthorized";
         }
 
-        Optional<DoctorProfileEntity> existingProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
+        DoctorProfileEntity existingProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
 
-        if (existingProfile.isPresent()) {
-            model.addAttribute("doctorProfileEntity", existingProfile.get());
+        if (existingProfile != null) {
+            model.addAttribute("doctorProfileEntity", existingProfile);
         } else {
-            model.addAttribute("doctorProfileEntity", new DoctorProfileEntity());
+            DoctorProfileEntity newProfile = new DoctorProfileEntity();
+            newProfile.setUser(loggedInUser);
+            model.addAttribute("doctorProfileEntity", newProfile);
         }
 
-        return "DoctorProfileForm"; // ✅ JSP form
+        return "DoctorProfileForm";
     }
 
-    // Save doctor profile
     @PostMapping("/save")
     public String saveDoctorProfile(@ModelAttribute DoctorProfileEntity doctorProfile,
                                     @RequestParam("profileImage") MultipartFile profileImage,
@@ -71,33 +70,30 @@ public class DoctorProfileController {
 
         doctorProfile.setUser(loggedInUser);
 
-        // Handle file upload
         if (!profileImage.isEmpty()) {
             String imageUrl = cloudinaryService.uploadFile(profileImage);
             doctorProfile.setProfilePic(imageUrl);
         }
 
         doctorProfileService.saveDoctorProfile(doctorProfile);
-        return "redirect:/doctorProfile/list"; // Redirect to profile list page
+        return "redirect:/dashboard";
     }
 
-    // Delete doctor profile
     @GetMapping("/delete/{docProfileId}")
     public String deleteDoctorProfile(@PathVariable Integer docProfileId) {
         doctorProfileService.deleteDoctorProfile(docProfileId);
         return "redirect:/doctorProfile/list";
     }
 
-    // View doctor profile details
     @GetMapping("/view/{docProfileId}")
     public String viewDoctorProfile(@PathVariable Integer docProfileId, Model model) {
         Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileById(docProfileId);
 
         if (doctorProfileOpt.isPresent()) {
             model.addAttribute("doctorProfile", doctorProfileOpt.get());
-            return "ViewDoctorProfile"; // ✅ JSP file to display doctor details
+            return "ViewDoctorProfile";
         } else {
-            return "redirect:/doctorProfile/list?error=ProfileNotFound"; // Redirect if profile not found
+            return "redirect:/doctorProfile/list?error=ProfileNotFound";
         }
     }
 }
