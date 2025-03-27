@@ -1,37 +1,62 @@
 package com.grownited.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
-@Data
 @Entity
-@Table(name = "doctor_profile") // Ensure matches database
+@Table(name = "doctor_profiles")
 public class DoctorProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "doc_profile_id") // Matches database column name
     private Integer docProfileId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Column(nullable = false)
-    private String qualification;
+    private String firstName;
+    private String lastName;
 
-    @Column(nullable = false)
-    private String specialization;
-
-    @Column(nullable = false)
-    private Integer experience;
-
-    @Column(name = "profile_pic", nullable = false) 
     private String profilePic;
 
-    @Column
-    private String about;
+    // Getters and setters
+    public Integer getDocProfileId() {
+        return docProfileId;
+    }
 
-    @Column
-    private String registrationNo;
+    public void setDocProfileId(Integer docProfileId) {
+        this.docProfileId = docProfileId;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
 }

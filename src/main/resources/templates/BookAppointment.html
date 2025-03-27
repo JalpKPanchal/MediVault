@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Appointment</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>Book an Appointment</h1>
+    <h2>Doctor: <span th:text="${doctor.firstName} + ' ' + ${doctor.lastName}"></span></h2>
+
+    <form th:action="@{/appointments/save}" method="post">
+        <input type="hidden" name="doctorId" th:value="${doctor.user.userId}" />
+        <label for="appointmentDate">Date:</label>
+        <input type="date" id="appointmentDate" name="appointmentDate" required />
+        <br/>
+        <label for="appointmentTime">Time:</label>
+        <input type="time" id="appointmentTime" name="appointmentTime" required />
+        <br/>
+        <label for="description">Description (Optional):</label>
+        <textarea id="description" name="description"></textarea>
+        <br/>
+        <button type="submit">Book Appointment</button>
+    </form>
+
+    <a href="/doctorProfile/doctors">Back to Doctors List</a>
+</body>
+</html>

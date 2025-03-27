@@ -1,55 +1,74 @@
 package com.grownited.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
-@Data
 @Entity
 @Table(name = "users")
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue
     private UUID userId;
 
     private String firstName;
     private String lastName;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
-    private String password; // Encrypted
-
-    private String gender;
-    private String contactNum;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    private int bornYear;
-
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
-    private List<PatientMedicalHistoryEntity> medicalHistory;
-
     public enum Role {
-        ADMIN, PATIENT, DOCTOR, FDE
+        PATIENT, DOCTOR, ADMIN
     }
 
-    public enum Status {
-        ACTIVE, DISABLED
+    // Getters and setters
+    public UUID getUserId() {
+        return userId;
     }
 
-    public String getRoleAsString() {
-        return role.name();
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

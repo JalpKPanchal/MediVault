@@ -4,7 +4,6 @@ import com.grownited.entity.AppointmentEntity;
 import com.grownited.entity.AppointmentEntity.AppointmentStatus;
 import com.grownited.entity.DoctorProfileEntity;
 import com.grownited.entity.UserEntity;
-import com.grownited.repository.AppointmentRepository;
 import com.grownited.service.AppointmentService;
 import com.grownited.service.DoctorProfileService;
 import com.grownited.service.UserService;
@@ -33,65 +32,10 @@ public class AppointmentController {
     private DoctorProfileService doctorProfileService;
 
     @Autowired
-    private AppointmentRepository appointmentRepository;
+    private AppointmentService appointmentService;
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private AppointmentService appointmentService;
-    
-
-    @GetMapping("/book")
-    public String bookAppointment(@RequestParam("doctorId") Integer doctorId, Model model) {
-        Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileById(doctorId);
-        if (doctorProfileOpt.isPresent()) {
-            model.addAttribute("doctor", doctorProfileOpt.get());
-            return "BookAppointment";
-        } else {
-            return "redirect:/doctorProfile/doctors?error=DoctorNotFound";
-        }
-    }
-
-    @PostMapping("/save")
-    public String saveAppointment(
-            @RequestParam("doctorId") Integer doctorId,
-            @RequestParam("appointmentDate") String appointmentDate,
-            @RequestParam("appointmentTime") String appointmentTime,
-            @RequestParam(value = "description", required = false) String description,
-            HttpSession session) {
-        // Fetch the doctor
-        Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileById(doctorId);
-        if (!doctorProfileOpt.isPresent()) {
-            return "redirect:/doctorProfile/doctors?error=DoctorNotFound";
-        }
-
-        // Create a new appointment
-        AppointmentEntity appointment = new AppointmentEntity();
-        appointment.setDoctor(doctorProfileOpt.get());
-
-        // Set patientId from logged-in user (if available)
-        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        if (loggedInUser != null) {
-            appointment.setPatientId(loggedInUser.getUserId());
-        } else {
-            // If no user is logged in, redirect to login
-            return "redirect:/user/login?error=PleaseLoginToBook";
-        }
-
-        // Parse date and time
-        appointment.setAppointmentDate(LocalDate.parse(appointmentDate));
-        appointment.setAppointmentTime(LocalTime.parse(appointmentTime));
-
-        // Set other fields
-        appointment.setStatus(AppointmentStatus.PENDING);
-        appointment.setComment(description);
-
-        // Save the appointment
-        appointmentRepository.save(appointment);
-
-        return "redirect:/appointments?success=true";
-    }
 
     @GetMapping
     public String listAppointments(Model model, HttpSession session) {
@@ -100,22 +44,18 @@ public class AppointmentController {
         Map<UUID, String> patientNames = new HashMap<>();
 
         if (loggedInUser != null && loggedInUser.getRole() == UserEntity.Role.PATIENT) {
-            // Show appointments for the logged-in patient
             appointments = appointmentService.getAppointmentsByPatientId(loggedInUser.getUserId());
         } else if (loggedInUser != null && loggedInUser.getRole() == UserEntity.Role.DOCTOR) {
-            // Fetch the doctor's profile to get the DoctorProfileEntity
             Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
             if (doctorProfileOpt.isPresent()) {
                 appointments = appointmentService.getAppointmentsByDoctor(doctorProfileOpt.get());
             } else {
-                appointments = List.of(); // No doctor profile found
+                appointments = List.of();
             }
         } else {
-            // If not logged in or not a patient/doctor, redirect to login
             return "redirect:/user/login?error=PleaseLoginToViewAppointments";
         }
 
-        // Fetch patient names for display
         for (AppointmentEntity appointment : appointments) {
             Optional<UserEntity> patientOpt = userService.getUserById(appointment.getPatientId());
             patientNames.put(appointment.getPatientId(), patientOpt.map(user -> user.getFirstName() + " " + user.getLastName()).orElse("Unknown Patient"));
@@ -124,5 +64,50 @@ public class AppointmentController {
         model.addAttribute("appointments", appointments);
         model.addAttribute("patientNames", patientNames);
         return "appointments";
+    }
+
+    @GetMapping("/book")
+    public String bookAppointment(@RequestParam("doctorId") UUID doctorId, Model model) {
+        Optional<UserEntity> doctorOpt = userService.getUserById(doctorId);
+        if (doctorOpt.isPresent()) {
+            Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileByUserId(doctorId);
+            if (doctorProfileOpt.isPresent()) {
+                model.addAttribute("doctor", doctorProfileOpt.get());
+                return "BookAppointment";
+            }
+        }
+        return "redirect:/doctorProfile/doctors?error=DoctorNotFound";
+    }
+
+    @PostMapping("/save")
+    public String saveAppointment(
+            @RequestParam("doctorId") UUID doctorId,
+            @RequestParam("appointmentDate") String appointmentDate,
+            @RequestParam("appointmentTime") String appointmentTime,
+            @RequestParam(value = "description", required = false) String description,
+            HttpSession session) {
+        Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileByUserId(doctorId);
+        if (!doctorProfileOpt.isPresent()) {
+            return "redirect:/doctorProfile/doctors?error=DoctorNotFound";
+        }
+
+        AppointmentEntity appointment = new AppointmentEntity();
+        appointment.setDoctor(doctorProfileOpt.get());
+
+        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
+        if (loggedInUser != null) {
+            appointment.setPatientId(loggedInUser.getUserId());
+        } else {
+            return "redirect:/user/login?error=PleaseLoginToBook";
+        }
+
+        appointment.setAppointmentDate(LocalDate.parse(appointmentDate));
+        appointment.setAppointmentTime(LocalTime.parse(appointmentTime));
+        appointment.setStatus(AppointmentStatus.PENDING);
+        appointment.setComment(description);
+
+        appointmentService.saveAppointment(appointment);
+
+        return "redirect:/appointments?success=true";
     }
 }

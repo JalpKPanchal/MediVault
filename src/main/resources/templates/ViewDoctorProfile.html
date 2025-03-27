@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Doctor Profile</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>Doctor Profile</h1>
+
+    <div>
+        <p><strong>Name:</strong> <span th:text="${doctorProfile.firstName} + ' ' + ${doctorProfile.lastName}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${doctorProfile.user.email}"></span></p>
+        <div th:if="${doctorProfile.profilePic}">
+            <p><strong>Profile Picture:</strong></p>
+            <img th:src="${doctorProfile.profilePic}" alt="Profile Picture" style="max-width: 200px;" />
+        </div>
+    </div>
+
+    <a href="/doctorProfile/list">Back to List</a>
+</body>
+</html>

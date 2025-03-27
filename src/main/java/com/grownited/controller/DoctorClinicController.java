@@ -1,8 +1,6 @@
 package com.grownited.controller;
 
 import com.grownited.entity.DoctorClinicEntity;
-import com.grownited.entity.ClinicEntity;
-import com.grownited.entity.UserEntity;
 import com.grownited.service.DoctorClinicService;
 import com.grownited.service.ClinicService;
 import com.grownited.service.UserService;
