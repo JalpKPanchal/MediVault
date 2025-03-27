@@ -38,10 +38,10 @@
                             <a class="nav-link" href="/contact">Contact</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-light ms-2" href="/login">Login</a>
+                            <a class="nav-link btn btn-light ms-2" href="/user/login">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-outline-light ms-2" href="/register">Register</a>
+                            <a class="nav-link btn btn-outline-light ms-2" href="/user/signup">Register</a>
                         </li>
                     </ul>
                 </div>
