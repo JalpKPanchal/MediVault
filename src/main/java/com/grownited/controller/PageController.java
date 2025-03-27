@@ -11,10 +11,10 @@ public class PageController {
         return "doctors"; // Resolves to /WEB-INF/views/doctors.jsp
     }
 
-    @GetMapping("/appointments")
-    public String appointments() {
-        return "appointments"; // Resolves to /WEB-INF/views/appointments.jsp
-    }
+//    @GetMapping("/appointments")
+//    public String appointments() {
+//        return "appointments"; // Resolves to /WEB-INF/views/appointments.jsp
+//    }
 
     @GetMapping("/about")
     public String about() {
