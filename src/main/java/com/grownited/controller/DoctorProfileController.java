@@ -96,4 +96,11 @@ public class DoctorProfileController {
             return "redirect:/doctorProfile/list?error=ProfileNotFound";
         }
     }
+    
+    @GetMapping("/doctors")
+    public String listDoctors(Model model) {
+        List<DoctorProfileEntity> doctorProfiles = doctorProfileService.getAllDoctorProfiles();
+        model.addAttribute("doctorProfiles", doctorProfiles);
+        return "doctors";
+    }
 }
