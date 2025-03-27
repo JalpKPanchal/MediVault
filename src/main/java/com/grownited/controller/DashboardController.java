@@ -49,13 +49,14 @@ public class DashboardController {
         }
 
         if (loggedInUser.getRole() == UserEntity.Role.DOCTOR) {
-            DoctorProfileEntity doctorProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
+            // Unwrap the Optional to get DoctorProfileEntity (or null if not found)
+            DoctorProfileEntity doctorProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId()).orElse(null);
 
             if (doctorProfile != null) {
-                Integer doctorId = doctorProfile.getDocProfileId();
-                List<AppointmentEntity> appointments = appointmentService.getAppointmentsByDoctorId(doctorId);
+                // Use the existing getAppointmentsByDoctor method with DoctorProfileEntity
+                List<AppointmentEntity> appointments = appointmentService.getAppointmentsByDoctor(doctorProfile);
                 model.addAttribute("appointments", appointments);
-                logger.debug("Found {} appointments for doctor with ID: {}", appointments.size(), doctorId);
+                logger.debug("Found {} appointments for doctor with ID: {}", appointments.size(), doctorProfile.getDocProfileId());
             } else {
                 model.addAttribute("error", "Doctor profile not found. Please create your profile.");
                 model.addAttribute("appointments", List.of());

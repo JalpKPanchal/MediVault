@@ -44,7 +44,7 @@ public class DoctorProfileController {
             return "redirect:/user/login?error=Unauthorized";
         }
 
-        DoctorProfileEntity existingProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
+        Optional<DoctorProfileEntity> existingProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
 
         if (existingProfile != null) {
             model.addAttribute("doctorProfileEntity", existingProfile);

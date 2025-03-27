@@ -5,6 +5,7 @@ import com.grownited.entity.AppointmentEntity.AppointmentStatus;
 import com.grownited.entity.DoctorProfileEntity;
 import com.grownited.entity.UserEntity;
 import com.grownited.repository.AppointmentRepository;
+import com.grownited.service.AppointmentService;
 import com.grownited.service.DoctorProfileService;
 import com.grownited.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -36,6 +37,10 @@ public class AppointmentController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AppointmentService appointmentService;
+    
 
     @GetMapping("/book")
     public String bookAppointment(@RequestParam("doctorId") Integer doctorId, Model model) {
@@ -96,14 +101,15 @@ public class AppointmentController {
 
         if (loggedInUser != null && loggedInUser.getRole() == UserEntity.Role.PATIENT) {
             // Show appointments for the logged-in patient
-            appointments = appointmentRepository.findAll().stream()
-                    .filter(appointment -> appointment.getPatientId().equals(loggedInUser.getUserId()))
-                    .toList();
+            appointments = appointmentService.getAppointmentsByPatientId(loggedInUser.getUserId());
         } else if (loggedInUser != null && loggedInUser.getRole() == UserEntity.Role.DOCTOR) {
-            // Show appointments for the logged-in doctor
-            appointments = appointmentRepository.findAll().stream()
-                    .filter(appointment -> appointment.getDoctor().getUser().getUserId().equals(loggedInUser.getUserId()))
-                    .toList();
+            // Fetch the doctor's profile to get the DoctorProfileEntity
+            Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId());
+            if (doctorProfileOpt.isPresent()) {
+                appointments = appointmentService.getAppointmentsByDoctor(doctorProfileOpt.get());
+            } else {
+                appointments = List.of(); // No doctor profile found
+            }
         } else {
             // If not logged in or not a patient/doctor, redirect to login
             return "redirect:/user/login?error=PleaseLoginToViewAppointments";

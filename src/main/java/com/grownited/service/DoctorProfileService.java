@@ -15,29 +15,43 @@ public class DoctorProfileService {
     @Autowired
     private DoctorProfileRepository doctorProfileRepository;
 
+    // Fetch all doctor profiles (removed redundant getAllDoctors method)
     public List<DoctorProfileEntity> getAllDoctorProfiles() {
         return doctorProfileRepository.findAll();
     }
 
-    public List<DoctorProfileEntity> getAllDoctors() {
-        return doctorProfileRepository.findAll();
-    }
-
+    // Fetch a doctor profile by ID
     public Optional<DoctorProfileEntity> getDoctorProfileById(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Doctor profile ID cannot be null");
+        }
         return doctorProfileRepository.findById(id);
     }
 
-    public void saveDoctorProfile(DoctorProfileEntity doctorProfile) {
-        doctorProfileRepository.save(doctorProfile);
+    // Save or update a doctor profile
+    public DoctorProfileEntity saveDoctorProfile(DoctorProfileEntity doctorProfile) {
+        if (doctorProfile == null) {
+            throw new IllegalArgumentException("Doctor profile cannot be null");
+        }
+        return doctorProfileRepository.save(doctorProfile);
     }
 
+    // Delete a doctor profile by ID
     public void deleteDoctorProfile(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Doctor profile ID cannot be null");
+        }
+        if (!doctorProfileRepository.existsById(id)) {
+            throw new IllegalStateException("Doctor profile with ID " + id + " not found");
+        }
         doctorProfileRepository.deleteById(id);
     }
 
-    // Updated method to return DoctorProfileEntity directly
-    public DoctorProfileEntity getDoctorProfileByUserId(UUID userId) {
-        Optional<DoctorProfileEntity> doctorProfile = doctorProfileRepository.findByUser_UserId(userId);
-        return doctorProfile.orElse(null); // Return null if not found
+    // Fetch a doctor profile by user ID
+    public Optional<DoctorProfileEntity> getDoctorProfileByUserId(UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+        return doctorProfileRepository.findByUserUserId(userId); // Note: Updated method name in repository
     }
 }
