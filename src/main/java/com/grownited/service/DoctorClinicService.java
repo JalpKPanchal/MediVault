@@ -15,15 +15,19 @@ public class DoctorClinicService {
         this.doctorClinicRepository = doctorClinicRepository;
     }
 
-    public List<DoctorClinicEntity> getAllDoctorClinics() {
-        return doctorClinicRepository.findAll();
+    public List<DoctorClinicEntity> getClinicsByDoctorId(Long doctorId) {
+        return doctorClinicRepository.findByDoctorUserId(doctorId);
     }
 
-    public void saveDoctorClinic(DoctorClinicEntity entity) {
-        doctorClinicRepository.save(entity);
+    public List<DoctorClinicEntity> getDoctorsByClinicId(Long clinicId) {
+        return doctorClinicRepository.findByClinicClinicId(clinicId);
     }
 
-    public void deleteDoctorClinic(Integer id) {
+    public void saveDoctorClinic(DoctorClinicEntity doctorClinic) {
+        doctorClinicRepository.save(doctorClinic);
+    }
+
+    public void deleteDoctorClinic(Long id) {
         doctorClinicRepository.deleteById(id);
     }
 }

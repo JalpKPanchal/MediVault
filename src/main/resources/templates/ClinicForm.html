@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Clinic Form</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>Clinic Form</h1>
+
+    <div th:if="${param.error}">
+        <p style="color: red;" th:text="${param.error}"></p>
+    </div>
+    <div th:if="${param.success}">
+        <p style="color: green;" th:text="${param.success}"></p>
+    </div>
+
+    <form th:action="@{/doctorClinic/saveClinic}" method="post">
+        <input type="hidden" th:field="*{clinicId}" />
+
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" th:field="*{name}" required />
+        </div>
+        <div>
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" th:field="*{address}" required />
+        </div>
+        <div>
+            <button type="submit">Save</button>
+        </div>
+    </form>
+
+    <a href="/doctorClinic/list">Back to Clinics List</a>
+</body>
+</html>

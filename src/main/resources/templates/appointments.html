@@ -8,7 +8,7 @@
     <h1>Your Appointments</h1>
 
     <div th:if="${param.success}">
-        <p style="color: green;">Appointment booked successfully!</p>
+        <p style="color: green;" th:text="${param.success}"></p>
     </div>
 
     <div th:if="${appointments.isEmpty()}">

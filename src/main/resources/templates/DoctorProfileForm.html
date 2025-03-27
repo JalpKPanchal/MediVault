@@ -6,22 +6,33 @@
 </head>
 <body>
     <h1>Doctor Profile</h1>
+
     <div th:if="${param.error}">
-        <p style="color: red;">Error: <span th:text="${param.error}"></span></p>
+        <p style="color: red;" th:text="${param.error}"></p>
     </div>
-    <form th:action="@{/doctorProfile/save}" th:object="${doctorProfileEntity}" method="post" enctype="multipart/form-data">
+    <div th:if="${param.success}">
+        <p style="color: green;" th:text="${param.success}"></p>
+    </div>
+
+    <form th:action="@{/doctorProfile/save}" method="post" enctype="multipart/form-data">
         <input type="hidden" th:field="*{docProfileId}" />
-        <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" th:field="*{firstName}" required />
-        <br/>
-        <label for="lastName">Last Name:</label>
-        <input type="text" id="lastName" th:field="*{lastName}" required />
-        <br/>
-        <label for="profileImage">Profile Image:</label>
-        <input type="file" id="profileImage" name="profileImage" />
-        <br/>
-        <button type="submit">Save Profile</button>
+
+        <div>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" th:field="*{firstName}" required />
+        </div>
+        <div>
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" th:field="*{lastName}" required />
+        </div>
+        <div>
+            <label for="profileImage">Profile Image:</label>
+            <input type="file" id="profileImage" name="profileImage" />
+        </div>
+        <div>
+            <button type="submit">Save</button>
+        </div>
     </form>
+
     <a href="/dashboard">Back to Dashboard</a>
 </body>
-</html>

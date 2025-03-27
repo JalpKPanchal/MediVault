@@ -20,8 +20,7 @@ public class UserEntity {
     private String lastName;
     private String email;
     private String password;
-
-    private Integer bornYear; // Added to match the born_year column
+    private Integer bornYear;
 
     public enum Role {
         PATIENT, DOCTOR, ADMIN

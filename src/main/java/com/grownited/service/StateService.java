@@ -2,32 +2,35 @@ package com.grownited.service;
 
 import com.grownited.entity.StateEntity;
 import com.grownited.repository.StateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class StateService {
 
-    @Autowired
-    private StateRepository stateRepository;
+    private final StateRepository stateRepository;
+
+    public StateService(StateRepository stateRepository) {
+        this.stateRepository = stateRepository;
+    }
 
     public List<StateEntity> getAllStates() {
         return stateRepository.findAll();
     }
 
-    public Optional<StateEntity> getStateById(UUID stateId) {
+    public void saveState(StateEntity state) {
+        stateRepository.save(state);
+    }
+
+    // New method to fetch a state by ID
+    public Optional<StateEntity> getStateById(Long stateId) {
         return stateRepository.findById(stateId);
     }
 
-    public void saveState(StateEntity stateEntity) {
-        stateRepository.save(stateEntity);
-    }
-
-    public void deleteState(UUID stateId) {
+    // New method to delete a state
+    public void deleteState(Long stateId) {
         stateRepository.deleteById(stateId);
     }
 }

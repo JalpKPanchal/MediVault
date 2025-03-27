@@ -4,12 +4,14 @@ import com.grownited.entity.DoctorProfileEntity;
 import com.grownited.entity.UserEntity;
 import com.grownited.service.CloudinaryService;
 import com.grownited.service.DoctorProfileService;
-import com.grownited.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,20 +21,20 @@ import java.util.Optional;
 @RequestMapping("/doctorProfile")
 public class DoctorProfileController {
 
-    @Autowired
-    private DoctorProfileService doctorProfileService;
+    private final DoctorProfileService doctorProfileService;
+    private final CloudinaryService cloudinaryService;
 
-    @Autowired
-    private CloudinaryService cloudinaryService;
-
-    @Autowired
-    private UserService userService;
+    public DoctorProfileController(DoctorProfileService doctorProfileService, CloudinaryService cloudinaryService) {
+        this.doctorProfileService = doctorProfileService;
+        this.cloudinaryService = cloudinaryService;
+    }
 
     @GetMapping("/list")
     public String listDoctorProfiles(Model model, HttpSession session) {
         UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
+
         if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.ADMIN) {
-            return "redirect:/dashboard?error=Unauthorized";
+            return "redirect:/user/login?error=Unauthorized";
         }
 
         List<DoctorProfileEntity> doctorProfiles = doctorProfileService.getAllDoctorProfiles();
@@ -62,66 +64,73 @@ public class DoctorProfileController {
     }
 
     @PostMapping("/save")
-    public String saveDoctorProfile(@ModelAttribute DoctorProfileEntity doctorProfile,
-                                    @RequestParam("profileImage") MultipartFile profileImage,
-                                    HttpSession session) {
+    public String saveDoctorProfile(
+            @RequestParam("docProfileId") Long docProfileId,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            HttpSession session) {
         UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 
         if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.DOCTOR) {
             return "redirect:/user/login?error=Unauthorized";
         }
 
-        doctorProfile.setUser(loggedInUser);
+        DoctorProfileEntity doctorProfile;
+        if (docProfileId != null && docProfileId > 0) {
+            Optional<DoctorProfileEntity> existingProfile = doctorProfileService.getDoctorProfileById(docProfileId);
+            if (existingProfile.isEmpty()) {
+                return "redirect:/doctorProfile/form?error=Profile not found";
+            }
+            doctorProfile = existingProfile.get();
+        } else {
+            doctorProfile = new DoctorProfileEntity();
+            doctorProfile.setUser(loggedInUser);
+        }
 
-        if (!profileImage.isEmpty()) {
+        doctorProfile.setFirstName(firstName);
+        doctorProfile.setLastName(lastName);
+
+        if (profileImage != null && !profileImage.isEmpty()) {
             try {
-                String imageUrl = cloudinaryService.uploadFile(profileImage);
+                String imageUrl = cloudinaryService.uploadImage(profileImage);
                 doctorProfile.setProfilePic(imageUrl);
             } catch (Exception e) {
-                return "redirect:/doctorProfile/form?error=ImageUploadFailed";
+                return "redirect:/doctorProfile/form?error=Failed to upload image";
             }
         }
 
         doctorProfileService.saveDoctorProfile(doctorProfile);
-        return "redirect:/dashboard?success=ProfileSaved";
-    }
-
-    @GetMapping("/delete/{docProfileId}")
-    public String deleteDoctorProfile(@PathVariable Integer docProfileId, HttpSession session) {
-        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.ADMIN) {
-            return "redirect:/dashboard?error=Unauthorized";
-        }
-
-        Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileById(docProfileId);
-        if (doctorProfileOpt.isPresent()) {
-            doctorProfileService.deleteDoctorProfile(docProfileId);
-            return "redirect:/doctorProfile/list?success=ProfileDeleted";
-        } else {
-            return "redirect:/doctorProfile/list?error=ProfileNotFound";
-        }
+        return "redirect:/dashboard?success=Profile saved successfully";
     }
 
     @GetMapping("/view/{docProfileId}")
-    public String viewDoctorProfile(@PathVariable Integer docProfileId, Model model, HttpSession session) {
+    public String viewDoctorProfile(@PathVariable("docProfileId") Long docProfileId, Model model, HttpSession session) {
         UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        if (loggedInUser == null) {
+
+        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.ADMIN) {
             return "redirect:/user/login?error=Unauthorized";
         }
 
-        Optional<DoctorProfileEntity> doctorProfileOpt = doctorProfileService.getDoctorProfileById(docProfileId);
-        if (doctorProfileOpt.isPresent()) {
-            DoctorProfileEntity doctorProfile = doctorProfileOpt.get();
-            if (loggedInUser.getRole() == UserEntity.Role.ADMIN ||
-                (loggedInUser.getRole() == UserEntity.Role.DOCTOR && doctorProfile.getUser().getUserId().equals(loggedInUser.getUserId()))) {
-                model.addAttribute("doctorProfile", doctorProfile);
-                return "ViewDoctorProfile";
-            } else {
-                return "redirect:/dashboard?error=Unauthorized";
-            }
-        } else {
-            return "redirect:/doctorProfile/list?error=ProfileNotFound";
+        Optional<DoctorProfileEntity> doctorProfile = doctorProfileService.getDoctorProfileById(docProfileId);
+        if (doctorProfile.isEmpty()) {
+            return "redirect:/doctorProfile/list?error=Profile not found";
         }
+
+        model.addAttribute("doctorProfile", doctorProfile.get());
+        return "ViewDoctorProfile";
+    }
+
+    @GetMapping("/delete/{docProfileId}")
+    public String deleteDoctorProfile(@PathVariable("docProfileId") Long docProfileId, HttpSession session) {
+        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
+
+        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.ADMIN) {
+            return "redirect:/user/login?error=Unauthorized";
+        }
+
+        doctorProfileService.deleteDoctorProfile(docProfileId);
+        return "redirect:/doctorProfile/list?success=Profile deleted successfully";
     }
 
     @GetMapping("/doctors")

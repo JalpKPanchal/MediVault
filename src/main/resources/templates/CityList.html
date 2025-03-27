@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>List Doctor Profiles</title>
+    <title>City List</title>
     <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-    <h1>Doctor Profiles</h1>
+    <h1>Cities</h1>
 
     <div th:if="${param.error}">
         <p style="color: red;" th:text="${param.error}"></p>
@@ -14,23 +14,27 @@
         <p style="color: green;" th:text="${param.success}"></p>
     </div>
 
-    <div th:if="${doctorProfiles.isEmpty()}">
-        <p>No doctor profiles available.</p>
+    <a href="/city/new">Add New City</a>
+
+    <div th:if="${cities.isEmpty()}">
+        <p>No cities available.</p>
     </div>
-    <div th:unless="${doctorProfiles.isEmpty()}">
+    <div th:unless="${cities.isEmpty()}">
         <table>
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>State</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="doctor : ${doctorProfiles}">
-                    <td th:text="${doctor.firstName} + ' ' + ${doctor.lastName}"></td>
+                <tr th:each="city : ${cities}">
+                    <td th:text="${city.name}"></td>
+                    <td th:text="${city.state != null} ? ${city.state.name} : 'N/A'"></td>
                     <td>
-                        <a th:href="@{/doctorProfile/view/{id}(id=${doctor.docProfileId})}">View</a>
-                        <a th:href="@{/doctorProfile/delete/{id}(id=${doctor.docProfileId})}" onclick="return confirm('Are you sure you want to delete this profile?')">Delete</a>
+                        <a th:href="@{/city/edit/{id}(id=${city.cityId})}">Edit</a>
+                        <a th:href="@{/city/delete/{id}(id=${city.cityId})}" onclick="return confirm('Are you sure you want to delete this city?')">Delete</a>
                     </td>
                 </tr>
             </tbody>
@@ -39,4 +43,3 @@
 
     <a href="/dashboard">Back to Dashboard</a>
 </body>
-</html>

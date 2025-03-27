@@ -53,7 +53,7 @@ public class ClinicController {
     }
 
     @GetMapping("/edit/{clinicId}")
-    public String editClinic(@PathVariable Integer clinicId, Model model) {
+    public String editClinic(@PathVariable Long clinicId, Model model) { // Changed Integer to Long
         Optional<ClinicEntity> clinic = clinicService.getClinicById(clinicId);
         if (clinic.isPresent()) {
             List<StateEntity> states = stateService.getAllStates();
@@ -69,7 +69,7 @@ public class ClinicController {
     }
 
     @GetMapping("/delete/{clinicId}")
-    public String deleteClinic(@PathVariable Integer clinicId) {
+    public String deleteClinic(@PathVariable Long clinicId) { // Changed Integer to Long
         clinicService.deleteClinic(clinicId);
         return "redirect:/clinic/list";
     }

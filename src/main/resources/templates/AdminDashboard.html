@@ -5,10 +5,15 @@
     <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-    <h1>Welcome, <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span>!</h1>
-    <h2>Admin Dashboard</h2>
+    <h1>Welcome to Admin Dashboard, <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span></h1>
 
-    <a href="/doctorProfile/list">Manage Doctor Profiles</a>
-    <a href="/user/logout">Logout</a>
+    <div>
+        <a href="/doctorProfile/list">Manage Doctor Profiles</a>
+        <a href="/doctorClinic/list">Manage Clinics (Doctor Assignments)</a>
+        <a href="/clinic/list">Manage Clinics (Details)</a>
+        <a href="/state/list">Manage States</a>
+        <a href="/city/list">Manage Cities</a>
+        <a href="/user/logout">Logout</a>
+    </div>
 </body>
 </html>

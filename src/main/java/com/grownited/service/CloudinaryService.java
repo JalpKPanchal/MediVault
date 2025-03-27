@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Map;
 
 @Service
@@ -18,16 +19,19 @@ public class CloudinaryService {
             @Value("${cloudinary.cloud-name}") String cloudName,
             @Value("${cloudinary.api-key}") String apiKey,
             @Value("${cloudinary.api-secret}") String apiSecret) {
-
         this.cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", cloudName,
                 "api_key", apiKey,
-                "api_secret", apiSecret
-        ));
+                "api_secret", apiSecret));
     }
 
-    public String uploadFile(MultipartFile file) throws IOException {
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-        return uploadResult.get("secure_url").toString(); // Return the uploaded image URL
+    public String uploadImage(MultipartFile file) throws Exception {
+        File tempFile = File.createTempFile("temp", file.getOriginalFilename());
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(file.getBytes());
+        }
+        Map uploadResult = cloudinary.uploader().upload(tempFile, ObjectUtils.emptyMap());
+        tempFile.delete();
+        return (String) uploadResult.get("url");
     }
 }

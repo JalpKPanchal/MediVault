@@ -1,60 +1,30 @@
 package com.grownited.controller;
 
-import com.grownited.entity.PatientMedicalHistoryEntity;
 import com.grownited.entity.UserEntity;
-import com.grownited.service.PatientMedicalHistoryService;
 import com.grownited.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@RequestMapping("/medicalHistory")
 public class PatientMedicalHistoryController {
 
-    @Autowired
-    private PatientMedicalHistoryService medicalHistoryService;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
+    public PatientMedicalHistoryController(UserService userService) {
+        this.userService = userService;
+    }
 
-    @GetMapping
-    public String listMedicalHistory(HttpSession session, Model model) {
+    @GetMapping("/patient/medicalHistory")
+    public String viewMedicalHistory(HttpSession session, Model model) {
         UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        if (loggedInUser == null) {
-            return "redirect:/user/login";
+
+        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.PATIENT) {
+            return "redirect:/user/login?error=Please login as a patient to view medical history";
         }
 
-        List<PatientMedicalHistoryEntity> history = medicalHistoryService.getMedicalHistoryByPatientId(loggedInUser.getUserId());
-        model.addAttribute("history", history);
-        return "MedicalHistoryList";
-    }
-
-    @GetMapping("/new")
-    public String showNewForm(HttpSession session, Model model) {
-        UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
-        if (loggedInUser == null || loggedInUser.getRole() != UserEntity.Role.DOCTOR) {
-            return "redirect:/user/login?error=Unauthorized";
-        }
-
-        model.addAttribute("history", new PatientMedicalHistoryEntity());
-        model.addAttribute("patients", userService.getAllDoctors());
-        return "MedicalHistoryForm";
-    }
-
-    @PostMapping("/save")
-    public String saveMedicalHistory(@ModelAttribute PatientMedicalHistoryEntity history) {
-        medicalHistoryService.saveMedicalHistory(history);
-        return "redirect:/medicalHistory";
-    }
-
-    @GetMapping("/delete/{id}")
-    public String deleteMedicalHistory(@PathVariable Long id) {
-        medicalHistoryService.deleteMedicalHistory(id);
-        return "redirect:/medicalHistory";
+        model.addAttribute("user", loggedInUser);
+        return "MedicalHistory";
     }
 }

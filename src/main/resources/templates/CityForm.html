@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>City Form</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>City Form</h1>
+
+    <div th:if="${param.error}">
+        <p style="color: red;" th:text="${param.error}"></p>
+    </div>
+    <div th:if="${param.success}">
+        <p style="color: green;" th:text="${param.success}"></p>
+    </div>
+
+    <form th:action="@{/city/save}" method="post" th:object="${cityEntity}">
+        <input type="hidden" th:field="*{cityId}" />
+
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" th:field="*{name}" required />
+        </div>
+        <div>
+            <label for="state">State:</label>
+            <select id="state" th:field="*{state}" required>
+                <option value="">-- Select a State --</option>
+                <option th:each="state : ${states}" th:value="${state.stateId}" th:text="${state.name}"></option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Save</button>
+        </div>
+    </form>
+
+    <a href="/city/list">Back to Cities List</a>
+</body>
+</html>

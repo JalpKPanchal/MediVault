@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Clinic List</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>Clinics</h1>
+
+    <a href="/clinic/new">Add New Clinic</a>
+
+    <div th:if="${clinics.isEmpty()}">
+        <p>No clinics available.</p>
+    </div>
+    <div th:unless="${clinics.isEmpty()}">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="clinic : ${clinics}">
+                    <td th:text="${clinic.name}"></td>
+                    <td th:text="${clinic.address}"></td>
+                    <td th:text="${clinic.city != null} ? ${clinic.city.name} : 'N/A'"></td>
+                    <td th:text="${clinic.state != null} ? ${clinic.state.name} : 'N/A'"></td>
+                    <td>
+                        <a th:href="@{/clinic/edit/{id}(id=${clinic.clinicId})}">Edit</a>
+                        <a th:href="@{/clinic/delete/{id}(id=${clinic.clinicId})}" onclick="return confirm('Are you sure you want to delete this clinic?')">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

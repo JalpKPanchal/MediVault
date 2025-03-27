@@ -1,24 +1,15 @@
 package com.grownited.repository;
 
 import com.grownited.entity.AppointmentEntity;
-import com.grownited.entity.AppointmentEntity.AppointmentStatus;
-import com.grownited.entity.DoctorProfileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.UUID;
 
-public interface AppointmentRepository extends JpaRepository<AppointmentEntity, UUID> {
+public interface AppointmentRepository extends JpaRepository<AppointmentEntity, Long> {
+    List<AppointmentEntity> findByPatientId(Long patientId);
 
-    // Fetch appointments by patientId
-    List<AppointmentEntity> findByPatientId(UUID patientId);
-
-    // Fetch appointments by doctor
-    List<AppointmentEntity> findByDoctor(DoctorProfileEntity doctor);
-
-    // Fetch appointments by status
-    List<AppointmentEntity> findByStatus(AppointmentStatus status);
-
-    // Fetch appointments by doctor and status
-    List<AppointmentEntity> findByDoctorAndStatus(DoctorProfileEntity doctor, AppointmentStatus status);
+    @Query("SELECT a FROM AppointmentEntity a WHERE a.doctor.user.userId = :doctorId")
+    List<AppointmentEntity> findByDoctorUserId(@Param("doctorId") Long doctorId);
 }

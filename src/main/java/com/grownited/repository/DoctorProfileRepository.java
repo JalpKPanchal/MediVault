@@ -4,8 +4,7 @@ import com.grownited.entity.DoctorProfileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface DoctorProfileRepository extends JpaRepository<DoctorProfileEntity, Integer> {
-    Optional<DoctorProfileEntity> findByUserUserId(UUID userId);
+public interface DoctorProfileRepository extends JpaRepository<DoctorProfileEntity, Long> {
+    Optional<DoctorProfileEntity> findByUserUserId(Long userId);
 }

@@ -1,72 +1,58 @@
 package com.grownited.controller;
 
 import com.grownited.entity.AppointmentEntity;
-import com.grownited.entity.DoctorProfileEntity;
 import com.grownited.entity.UserEntity;
 import com.grownited.service.AppointmentService;
-import com.grownited.service.DoctorProfileService;
+import com.grownited.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Controller
-@RequestMapping("/dashboard")
 public class DashboardController {
 
-    private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
+    private final AppointmentService appointmentService;
+    private final UserService userService;
 
-    @Autowired
-    private AppointmentService appointmentService;
+    public DashboardController(AppointmentService appointmentService, UserService userService) {
+        this.appointmentService = appointmentService;
+        this.userService = userService;
+    }
 
-    @Autowired
-    private DoctorProfileService doctorProfileService;
-
-    @GetMapping
-    public String showDashboard(HttpSession session, Model model) {
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
         UserEntity loggedInUser = (UserEntity) session.getAttribute("loggedInUser");
 
         if (loggedInUser == null) {
-            logger.warn("User not logged in, redirecting to login page.");
-            return "redirect:/user/login";
+            return "redirect:/user/login?error=Please login to access the dashboard";
         }
 
-        logger.info("User {} (Role: {}) accessed the dashboard.", loggedInUser.getEmail(), loggedInUser.getRole());
+        model.addAttribute("user", loggedInUser);
 
         if (loggedInUser.getRole() == UserEntity.Role.PATIENT) {
             List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPatientId(loggedInUser.getUserId());
             model.addAttribute("appointments", appointments);
-            model.addAttribute("user", loggedInUser);
-            logger.debug("Found {} appointments for patient with ID: {}", appointments.size(), loggedInUser.getUserId());
             return "PatientDashboard";
-        }
-
-        if (loggedInUser.getRole() == UserEntity.Role.DOCTOR) {
-            DoctorProfileEntity doctorProfile = doctorProfileService.getDoctorProfileByUserId(loggedInUser.getUserId()).orElse(null);
-
-            if (doctorProfile != null) {
-                List<AppointmentEntity> appointments = appointmentService.getAppointmentsByDoctor(doctorProfile);
-                model.addAttribute("appointments", appointments);
-                logger.debug("Found {} appointments for doctor with ID: {}", appointments.size(), doctorProfile.getDocProfileId());
-            } else {
-                model.addAttribute("error", "Doctor profile not found. Please create your profile.");
-                model.addAttribute("appointments", List.of());
-                logger.warn("Doctor profile not found for user ID: {}", loggedInUser.getUserId());
+        } else if (loggedInUser.getRole() == UserEntity.Role.DOCTOR) {
+            List<AppointmentEntity> appointments = appointmentService.getAppointmentsByDoctorId(loggedInUser.getUserId());
+            Map<Long, String> patientNames = new HashMap<>();
+            for (AppointmentEntity appointment : appointments) {
+                Optional<UserEntity> patient = userService.getUserById(appointment.getPatientId());
+                patientNames.put(appointment.getPatientId(), patient.map(user -> user.getFirstName() + " " + user.getLastName()).orElse("Unknown"));
             }
-
-            model.addAttribute("statusList", Arrays.asList(AppointmentEntity.AppointmentStatus.values()));
-            model.addAttribute("user", loggedInUser);
+            model.addAttribute("appointments", appointments);
+            model.addAttribute("patientNames", patientNames);
             return "DoctorDashboard";
+        } else if (loggedInUser.getRole() == UserEntity.Role.ADMIN) {
+            return "AdminDashboard";
+        } else {
+            return "redirect:/user/login?error=Invalid role";
         }
-
-        model.addAttribute("user", loggedInUser);
-        return "AdminDashboard";
     }
 }

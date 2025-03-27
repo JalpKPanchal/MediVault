@@ -5,12 +5,18 @@
     <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-    <h1>Welcome, <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span>!</h1>
-    <h2>Your Dashboard</h2>
+    <h1>Welcome to Patient Dashboard, <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span></h1>
 
-    <h3>Your Upcoming Appointments</h3>
+    <div>
+        <a href="/doctorProfile/doctors">Find a Doctor</a>
+        <a href="/appointments">View Appointments</a>
+        <a href="/patient/medicalHistory">View Medical History</a>
+        <a href="/user/logout">Logout</a>
+    </div>
+
+    <h2>Your Appointments</h2>
     <div th:if="${appointments.isEmpty()}">
-        <p>You have no upcoming appointments.</p>
+        <p>You have no appointments.</p>
     </div>
     <div th:unless="${appointments.isEmpty()}">
         <table>
@@ -32,9 +38,5 @@
             </tbody>
         </table>
     </div>
-
-    <a href="/doctorProfile/doctors">Book a New Appointment</a>
-    <a href="/appointments">View All Appointments</a>
-    <a href="/user/logout">Logout</a>
 </body>
 </html>

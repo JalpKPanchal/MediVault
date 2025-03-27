@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Assign Doctor to Clinic</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>Assign Doctors to <span th:text="${clinic.name}"></span></h1>
+
+    <div th:if="${param.error}">
+        <p style="color: red;" th:text="${param.error}"></p>
+    </div>
+    <div th:if="${param.success}">
+        <p style="color: green;" th:text="${param.success}"></p>
+    </div>
+
+    <h2>Assign a New Doctor</h2>
+    <form th:action="@{/doctorClinic/assign}" method="post">
+        <input type="hidden" name="clinicId" th:value="${clinic.clinicId}" />
+
+        <div>
+            <label for="doctorId">Select Doctor:</label>
+            <select id="doctorId" name="doctorId" required>
+                <option value="">-- Select a Doctor --</option>
+                <option th:each="doctor : ${doctors}" th:value="${doctor.userId}" th:text="${doctor.firstName} + ' ' + ${doctor.lastName}"></option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Assign</button>
+        </div>
+    </form>
+
+    <h2>Assigned Doctors</h2>
+    <div th:if="${existingAssignments.isEmpty()}">
+        <p>No doctors assigned to this clinic.</p>
+    </div>
+    <div th:unless="${existingAssignments.isEmpty()}">
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="assignment : ${existingAssignments}">
+                    <td th:text="${assignment.doctor.firstName} + ' ' + ${assignment.doctor.lastName}"></td>
+                    <td>
+                        <a th:href="@{/doctorClinic/deleteAssignment/{id}(id=${assignment.id})}" onclick="return confirm('Are you sure you want to remove this doctor from the clinic?')">Remove</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/doctorClinic/list">Back to Clinics List</a>
+</body>
+</html>

@@ -1,47 +1,70 @@
 package com.grownited.entity;
 
-import lombok.Data;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
-import jakarta.persistence.*;
-import java.math.BigDecimal;
-
-@Data
 @Entity
-@Table(name = "clinic")
+@Table(name = "clinics")
 public class ClinicEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer clinicId;
+    private Long clinicId;
 
-    @Column(nullable = false)
-    private String clinicName;
-
-    @Column(nullable = false)
-    private String timing;
-
-    @Column(nullable = false)
+    private String name;
     private String address;
 
-    @Column(nullable = false)
-    private Integer phoneNo;
-
-    @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal rating;
-
-    private String about;
-
-    private BigDecimal lat;
-
-    private BigDecimal log;
-
     @ManyToOne
-    @JoinColumn(name = "cityId", nullable = false)
+    @JoinColumn(name = "city_id")
     private CityEntity city;
 
     @ManyToOne
-    @JoinColumn(name = "stateId", nullable = false)
+    @JoinColumn(name = "state_id")
     private StateEntity state;
 
-    private Integer pincode;
+    // Getters and Setters
+    public Long getClinicId() {
+        return clinicId;
+    }
+
+    public void setClinicId(Long clinicId) {
+        this.clinicId = clinicId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public CityEntity getCity() {
+        return city;
+    }
+
+    public void setCity(CityEntity city) {
+        this.city = city;
+    }
+
+    public StateEntity getState() {
+        return state;
+    }
+
+    public void setState(StateEntity state) {
+        this.state = state;
+    }
 }

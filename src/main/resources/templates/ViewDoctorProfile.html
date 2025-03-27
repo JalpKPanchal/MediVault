@@ -9,10 +9,9 @@
 
     <div>
         <p><strong>Name:</strong> <span th:text="${doctorProfile.firstName} + ' ' + ${doctorProfile.lastName}"></span></p>
-        <p><strong>Email:</strong> <span th:text="${doctorProfile.user.email}"></span></p>
         <div th:if="${doctorProfile.profilePic}">
-            <p><strong>Profile Picture:</strong></p>
-            <img th:src="${doctorProfile.profilePic}" alt="Profile Picture" style="max-width: 200px;" />
+            <p><strong>Profile Image:</strong></p>
+            <img th:src="${doctorProfile.profilePic}" alt="Profile Image" style="max-width: 200px;" />
         </div>
     </div>
 

@@ -1,22 +1,51 @@
 package com.grownited.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
-@Data
 @Entity
-@Table(name = "doct_clinic")
+@Table(name = "doctor_clinics")
 public class DoctorClinicEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // Composite keys are possible, but this is simpler
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "docid", nullable = false)
-    private UserEntity user; // Assuming Doctor is represented by UserEntity
+    @JoinColumn(name = "doctor_id")
+    private UserEntity doctor;
 
     @ManyToOne
-    @JoinColumn(name = "clinicid", nullable = false)
+    @JoinColumn(name = "clinic_id")
     private ClinicEntity clinic;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public UserEntity getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(UserEntity doctor) {
+        this.doctor = doctor;
+    }
+
+    public ClinicEntity getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(ClinicEntity clinic) {
+        this.clinic = clinic;
+    }
 }

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Medical History</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <h1>Medical History</h1>
+    <p>User: <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span></p>
+    <!-- Add medical history details here -->
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

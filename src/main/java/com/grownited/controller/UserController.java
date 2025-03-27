@@ -3,32 +3,35 @@ package com.grownited.controller;
 import com.grownited.entity.UserEntity;
 import com.grownited.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+@RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @GetMapping("/user/login")
-    public String showLoginPage() {
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/login")
+    public String login(Model model) {
         return "login";
     }
 
-    @PostMapping("/user/login")
-    public String login(
+    @PostMapping("/login")
+    public String authenticate(
             @RequestParam("email") String email,
             @RequestParam("password") String password,
             HttpSession session,
             Model model) {
         UserEntity user = userService.authenticate(email, password);
-
         if (user != null) {
             session.setAttribute("loggedInUser", user);
             return "redirect:/dashboard";
@@ -38,9 +41,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/logout")
+    @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/user/login";
+        return "redirect:/user/login?success=Logged out successfully";
     }
 }

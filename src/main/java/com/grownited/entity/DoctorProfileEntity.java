@@ -1,6 +1,12 @@
 package com.grownited.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "doctor_profiles")
@@ -8,23 +14,22 @@ public class DoctorProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer docProfileId;
+    private Long docProfileId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
     private String firstName;
     private String lastName;
-
     private String profilePic;
 
-    // Getters and setters
-    public Integer getDocProfileId() {
+    // Getters and Setters
+    public Long getDocProfileId() {
         return docProfileId;
     }
 
-    public void setDocProfileId(Integer docProfileId) {
+    public void setDocProfileId(Long docProfileId) {
         this.docProfileId = docProfileId;
     }
 
