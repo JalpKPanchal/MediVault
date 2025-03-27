@@ -23,7 +23,7 @@ public class UserService {
         Optional<UserEntity> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
-            if (passwordEncoder.matches(password, user.getPassword())) { // Compare encoded password
+            if (passwordEncoder.matches(password, user.getPassword())) {
                 return user;
             }
         }
@@ -39,7 +39,7 @@ public class UserService {
     }
 
     public void saveUser(UserEntity user) {
-        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) { // Check if password is already encoded
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         userRepository.save(user);

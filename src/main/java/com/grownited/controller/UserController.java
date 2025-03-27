@@ -21,29 +21,47 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public String login(Model model) {
-        return "login";
+    public String showLoginForm() {
+        return "Login";
     }
 
     @PostMapping("/login")
-    public String authenticate(
-            @RequestParam("email") String email,
-            @RequestParam("password") String password,
-            HttpSession session,
-            Model model) {
+    public String login(@RequestParam String email, @RequestParam String password, HttpSession session, Model model) {
         UserEntity user = userService.authenticate(email, password);
         if (user != null) {
-            session.setAttribute("loggedInUser", user);
-            return "redirect:/dashboard";
+            session.setAttribute("user", user);
+            return "redirect:/user/dashboard";
         } else {
             model.addAttribute("error", "Invalid email or password");
-            return "login";
+            return "Login";
         }
+    }
+
+    @GetMapping("/dashboard")
+    public String showDashboard(HttpSession session, Model model) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/user/login";
+        }
+        model.addAttribute("user", user);
+        return "Dashboard";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/user/login?success=Logged out successfully";
+        return "redirect:/user/login";
+    }
+
+    @GetMapping("/forgotPassword")
+    public String showForgotPasswordForm() {
+        return "ForgotPassword";
+    }
+
+    @PostMapping("/forgotPassword")
+    public String processForgotPassword(@RequestParam String email, Model model) {
+        // Placeholder for password reset logic (e.g., send OTP via email)
+        model.addAttribute("message", "If an account with that email exists, a password reset link has been sent.");
+        return "ForgotPassword";
     }
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Patient Medical History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .no-records {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Medical History for Patient ID: <span th:text="${patientId}"></span></h1>
+
+    <div th:if="${medicalHistory != null and not #lists.isEmpty(medicalHistory)}">
+        <table>
+            <thead>
+                <tr>
+                    <th>History ID</th>
+                    <th>Doctor</th>
+                    <th>Diagnosis</th>
+                    <th>Treatment</th>
+                    <th>Prescription</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="history : ${medicalHistory}">
+                    <td th:text="${history.historyId}"></td>
+                    <td th:text="${history.doctor != null} ? ${history.doctor.firstName + ' ' + history.doctor.lastName} : 'N/A'"></td>
+                    <td th:text="${history.diagnosis}"></td>
+                    <td th:text="${history.treatment}"></td>
+                    <td th:text="${history.prescription}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${medicalHistory == null or #lists.isEmpty(medicalHistory)}" class="no-records">
+        No medical history records found for this patient.
+    </div>
+
+    <p><a th:href="@{/user/dashboard}">Back to Dashboard</a></p>
+</body>
+</html>

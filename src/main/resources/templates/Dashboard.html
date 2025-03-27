@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .welcome {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .actions {
+            margin-top: 20px;
+        }
+        .actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .actions a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <div class="welcome">
+        Welcome, <span th:text="${user.firstName + ' ' + user.lastName}"></span>!
+        <br>
+        Role: <span th:text="${user.role}"></span>
+    </div>
+
+    <div class="actions">
+        <div th:if="${user.role == T(com.grownited.entity.UserEntity.Role).PATIENT}">
+            <a th:href="@{/patient/medicalHistory/{id}(id=${user.userId})}">View Medical History</a>
+        </div>
+        <a th:href="@{/user/logout}">Logout</a>
+    </div>
+</body>
+</html>
