@@ -1,8 +1,6 @@
 package com.grownited;
 
-import com.grownited.entity.DoctorProfileEntity;
 import com.grownited.entity.UserEntity;
-import com.grownited.service.DoctorProfileService;
 import com.grownited.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,45 +15,39 @@ public class MediVaultApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(UserService userService, DoctorProfileService doctorProfileService) {
+    public CommandLineRunner initData(UserService userService) {
         return args -> {
-            // Create a test patient user
+            // Create a test patient
             UserEntity patient = new UserEntity();
-            patient.setFirstName("John");
-            patient.setLastName("Doe");
+            patient.setFirstName("Patient");
+            patient.setLastName("User");
             patient.setEmail("patient@example.com");
             patient.setPassword("password123");
+            patient.setBornYear(1990); // Set a value for bornYear
             patient.setRole(UserEntity.Role.PATIENT);
             userService.saveUser(patient);
 
-            // Create a test doctor user
+            // Create a test doctor
             UserEntity doctor = new UserEntity();
-            doctor.setFirstName("Jane");
-            doctor.setLastName("Smith");
+            doctor.setFirstName("Doctor");
+            doctor.setLastName("User");
             doctor.setEmail("doctor@example.com");
             doctor.setPassword("doctor123");
+            doctor.setBornYear(1985); // Set a value for bornYear
             doctor.setRole(UserEntity.Role.DOCTOR);
             userService.saveUser(doctor);
 
-            // Create a doctor profile for the test doctor
-            DoctorProfileEntity doctorProfile = new DoctorProfileEntity();
-            doctorProfile.setUser(doctor);
-            doctorProfile.setFirstName(doctor.getFirstName());
-            doctorProfile.setLastName(doctor.getLastName());
-            doctorProfileService.saveDoctorProfile(doctorProfile);
-
-            // Create a test admin user
+            // Create a test admin
             UserEntity admin = new UserEntity();
             admin.setFirstName("Admin");
             admin.setLastName("User");
             admin.setEmail("admin@example.com");
             admin.setPassword("admin123");
+            admin.setBornYear(1980); // Set a value for bornYear
             admin.setRole(UserEntity.Role.ADMIN);
             userService.saveUser(admin);
-
-            System.out.println("Test patient user created: patient@example.com / password123");
-            System.out.println("Test doctor user created: doctor@example.com / doctor123");
-            System.out.println("Test admin user created: admin@example.com / admin123");
+            
+          
         };
     }
 }

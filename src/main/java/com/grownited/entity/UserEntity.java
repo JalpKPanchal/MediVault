@@ -1,34 +1,41 @@
 package com.grownited.entity;
 
-import jakarta.persistence.*;
-import java.util.UUID;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
 public class UserEntity {
 
     @Id
-    @GeneratedValue
-    private UUID userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
     private String firstName;
     private String lastName;
     private String email;
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    private Integer bornYear; // Added to match the born_year column
 
     public enum Role {
         PATIENT, DOCTOR, ADMIN
     }
 
-    // Getters and setters
-    public UUID getUserId() {
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    // Getters and Setters
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
@@ -62,6 +69,14 @@ public class UserEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getBornYear() {
+        return bornYear;
+    }
+
+    public void setBornYear(Integer bornYear) {
+        this.bornYear = bornYear;
     }
 
     public Role getRole() {
