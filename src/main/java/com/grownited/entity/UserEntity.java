@@ -81,4 +81,9 @@ public class UserEntity {
     public void setRole(Role role) {
         this.role = role;
     }
+
+	public void setUserId(UUID randomUUID) {
+		// TODO Auto-generated method stub
+		
+	}
 }

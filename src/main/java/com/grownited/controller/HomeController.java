@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "index"; // This will resolve to /WEB-INF/views/index.jsp
+        return "redirect:/user/login"; // Redirect to the login page
     }
 }
